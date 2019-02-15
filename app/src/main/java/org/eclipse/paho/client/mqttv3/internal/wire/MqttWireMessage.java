@@ -352,6 +352,27 @@ public abstract class MqttWireMessage {
 		}
 	}
 
+	public byte [] message2bytes() {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] bytes = getHeader();
+			byte[] pl = getPayload();
+			baos.write(bytes,0,bytes.length);
+
+			int offset = 0;
+			int chunckSize = 1024;
+			while (offset < pl.length) {
+				int length = Math.min(chunckSize, pl.length - offset);
+				baos.write(pl, offset, length);
+				offset += chunckSize;
+			}
+			return baos.toByteArray();
+		} catch (MqttException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public String toString() {
 		return PACKET_NAMES[type];
 	}

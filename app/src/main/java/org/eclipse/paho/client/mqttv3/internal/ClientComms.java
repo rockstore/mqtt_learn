@@ -19,6 +19,8 @@
  */
 package org.eclipse.paho.client.mqttv3.internal;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Vector;
@@ -697,12 +699,16 @@ public class ClientComms {
 				// Connect to the server at the network level e.g. TCP socket and then
 				// start the background processing threads before sending the connect
 				// packet.
-				NetworkModule networkModule = networkModules[networkModuleIndex];
-				networkModule.start();
-				receiver = new CommsReceiver(clientComms, clientState, tokenStore, networkModule.getInputStream());
-				receiver.start("MQTT Rec: "+getClient().getClientId(), executorService);
-				sender = new CommsSender(clientComms, clientState, tokenStore, networkModule.getOutputStream());
-				sender.start("MQTT Snd: "+getClient().getClientId(), executorService);
+//				NetworkModule networkModule = networkModules[networkModuleIndex];
+//				networkModule.start();
+//				receiver = new CommsReceiver(clientComms, clientState, tokenStore, networkModule.getInputStream());
+//				receiver.start("MQTT Rec: "+getClient().getClientId(), executorService);
+//				sender = new CommsSender(clientComms, clientState, tokenStore, networkModule.getOutputStream());
+//				sender.start("MQTT Snd: "+getClient().getClientId(), executorService);
+				// 作为探索尝试，直接尝试连接远程broker，暂时未走networkModule逻辑
+                SocketAddress address = new InetSocketAddress("118.24.153.230", 61613);
+                NioSocketConnection nsc = new NioSocketConnection(clientComms, address, clientState, tokenStore);
+                nsc.connect(executorService);
 				callback.start("MQTT Call: "+getClient().getClientId(), executorService);
 				internalSend(conPacket, conToken);
 			} catch (MqttException ex) {
